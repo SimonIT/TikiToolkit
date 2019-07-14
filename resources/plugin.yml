@@ -4,8 +4,8 @@ version: 1.2.8
 website: http://minecarts.com
 author: Verrier
 description: >
-             A slot based admin toolkit that binds tools to abilities based on inventory slot
+    A slot based admin toolkit that binds tools to abilities based on inventory slot
 commands:
-  tiki:
-    description: Main command to access tiki voodoo
-    usage: /<command> [tools | identify | reload]
+    tiki:
+        description: Main command to access tiki voodoo
+        usage: /<command> [tools | identify | reload]

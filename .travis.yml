@@ -1,0 +1,23 @@
+language: java
+jdk:
+    - openjdk8
+
+before_deploy:
+    - mvn package
+
+deploy:
+    provider: releases
+    pre-release: true
+    skip_cleanup: true
+    api_key: ${GH_TOKEN}
+    file_glob: true
+    file: target/TikiToolkit-*.jar
+    on:
+        repo: SimonIT/TikiToolkit
+        tags: true
+        all_branches: true
+
+cache:
+    directories:
+        - .autoconf
+        - $HOME/.m2
