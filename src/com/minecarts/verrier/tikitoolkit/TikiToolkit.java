@@ -68,11 +68,11 @@ public class TikiToolkit extends JavaPlugin {
 					if (sender instanceof Player) {
 						Player player = (Player) sender;
 
-						if (!player.isOp() && getConfig().getBoolean("admins." + player.getName() + ".op_only", false)) {
+						if (!player.isOp() && getConfig().getBoolean("admins." + player.getUniqueId().toString() + ".op_only", false)) {
 							return false;
 						}
 
-						Runnable setInventory = playerListener.new setInventory(player.getName());
+						Runnable setInventory = playerListener.new setInventory(player);
 						getServer().getScheduler().scheduleSyncDelayedTask(this, setInventory, 1);
 						return true;
 					}
@@ -80,7 +80,7 @@ public class TikiToolkit extends JavaPlugin {
 					if (args.length > 2) {
 						if (sender instanceof Player) {
 							Player player = (Player) sender;
-							getConfig().set("admins." + player.getName() + ".slot_" + player.getInventory().getHeldItemSlot() + ".type", player.getItemInHand().getType().toString());
+							getConfig().set("admins." + player.getUniqueId().toString() + ".slot_" + player.getInventory().getHeldItemSlot() + ".type", player.getInventory().getItemInMainHand().getType().toString());
 
 							if (args[1].equalsIgnoreCase("click_left") || args[1].equalsIgnoreCase("click_right")) {
 								//Check to see if there are multiple args after this, and if so, try to figure out how to break it apart
@@ -88,7 +88,7 @@ public class TikiToolkit extends JavaPlugin {
 
 								String combinedArgs = StringHelper.join(args, 2);
 
-								getConfig().set("admins." + player.getName() + ".slot_" + player.getInventory().getHeldItemSlot() + "." + args[1].toLowerCase(), combinedArgs);
+								getConfig().set("admins." + player.getUniqueId().toString() + ".slot_" + player.getInventory().getHeldItemSlot() + "." + args[1].toLowerCase(), combinedArgs);
 							} else {
 								player.sendMessage("Please use click_left or click_right to define the click action.");
 							}

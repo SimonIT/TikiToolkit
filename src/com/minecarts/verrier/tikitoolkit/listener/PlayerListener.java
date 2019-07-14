@@ -13,11 +13,12 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Iterator;
 import java.util.List;
 
 public class PlayerListener implements Listener {
 
-	TikiToolkit plugin;
+	private TikiToolkit plugin;
 
 	public PlayerListener(TikiToolkit instance) {
 		plugin = instance;
@@ -47,12 +48,13 @@ public class PlayerListener implements Listener {
 	public void onItemHeldChange(PlayerItemHeldEvent event) {
 		Player player = event.getPlayer();
 		int slot = event.getNewSlot();
-		String name = plugin.getConfig().getString("admins." + player.getName() + ".slot_" + slot + ".name");
+		String name = plugin.getConfig().getString("admins." + player.getUniqueId().toString() + ".slot_" + slot + ".name");
 		String type = getToolTypeAtSlot(player, slot);
 		if (name != null) {
 			//Only display the selected tool message if they have the have the correct item in hand
-			if (player.getInventory().getItem(slot).getType() == Material.getMaterial(type)) {
-				if (plugin.getConfig().getBoolean("admins." + player.getName() + ".selected_msg", true)) {
+			ItemStack currentItems = player.getInventory().getItem(slot);
+			if (currentItems != null && currentItems.getType().equals(Material.getMaterial(type))) {
+				if (plugin.getConfig().getBoolean("admins." + player.getUniqueId().toString() + ".selected_msg", true)) {
 					player.sendMessage(String.format("Tiki: %s%s%s selected", ChatColor.GOLD, name, ChatColor.WHITE));
 				}
 			}
@@ -62,13 +64,13 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void onPlayerRespawn(PlayerRespawnEvent event) {
 		Player player = event.getPlayer();
-		Runnable setInventory = new setInventory(player.getName());
+		Runnable setInventory = new setInventory(player);
 		//Since we don't have the actual player object that's going to respawn
 		//	lets fire off a task to do later? Is this the best way to do it?
-		if (!player.isOp() && plugin.getConfig().getBoolean("admins." + player.getName() + ".op_only", false)) {
+		if (!player.isOp() && plugin.getConfig().getBoolean("admins." + player.getUniqueId().toString() + ".op_only", false)) {
 			return;
 		}
-		if (plugin.getConfig().getBoolean("admins." + player.getName() + ".respawn_wands", false)) {
+		if (plugin.getConfig().getBoolean("admins." + player.getUniqueId().toString() + ".respawn_wands", false)) {
 			plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, setInventory, 1);
 		}
 	}
@@ -79,11 +81,11 @@ public class PlayerListener implements Listener {
 
 		if (type != null) {
 			//Check to see if the item in the hand is their configured wand
-			if (player.getInventory().getItemInHand().getType() == Material.getMaterial(type)) {
+			if (player.getInventory().getItemInMainHand().getType() == Material.getMaterial(type)) {
 				//Try to load the commands as a list
-				List<String> cmds = plugin.getConfig().getStringList("admins." + player.getName() + ".slot_" + slot + "." + clickType);
+				List<String> cmds = plugin.getConfig().getStringList("admins." + player.getUniqueId().toString() + ".slot_" + slot + "." + clickType);
 				if (cmds.size() > 0) {
-					java.util.Iterator itr = cmds.iterator();
+					Iterator itr = cmds.iterator();
 					while (itr.hasNext()) {
 						String cmd = (String) itr.next();//Try to parse it as an integer, if it is, treat it as a delay
 						try {
@@ -97,7 +99,7 @@ public class PlayerListener implements Listener {
 					}
 				} else {
 					//Try fetching it as a string
-					String cmd = plugin.getConfig().getString("admins." + player.getName() + ".slot_" + slot + "." + clickType);
+					String cmd = plugin.getConfig().getString("admins." + player.getUniqueId().toString() + ".slot_" + slot + "." + clickType);
 					if (cmd != null) {
 						player.chat(cmd);
 					}
@@ -109,19 +111,18 @@ public class PlayerListener implements Listener {
 	}
 
 	private String getToolTypeAtSlot(Player player, int slot) {
-		return plugin.getConfig().getString("admins." + player.getName() + ".slot_" + slot + ".type");
+		return plugin.getConfig().getString("admins." + player.getUniqueId().toString() + ".slot_" + slot + ".type");
 	}
 
 	public class setInventory implements Runnable {
-		private String playerName;
+		private Player player;
 
-		public setInventory(String playerName) {
-			this.playerName = playerName;
+		public setInventory(Player player) {
+			this.player = player;
 		}
 
 		public void run() {
 			//Give the players their admin kit on respawn
-			Player player = plugin.getServer().getPlayer(playerName);
 			player.sendMessage("The tiki gods have restored your admin tools.");
 			for (int i = 0; i < 9; i++) {
 				String type = getToolTypeAtSlot(player, i);

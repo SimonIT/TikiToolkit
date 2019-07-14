@@ -18,8 +18,8 @@ public class EntityListener implements Listener {
 		if (event.getEntity() instanceof Player) {
 			Player player = (Player) event.getEntity();
 			//Check to see if their drops are off
-			if (!(plugin.getConfig().getBoolean("admins." + player.getName() + ".drop_items", true))) {
-				if (!player.isOp() && plugin.getConfig().getBoolean("admins." + player.getName() + ".op_only", false)) {
+			if (!plugin.getConfig().getBoolean("admins." + player.getUniqueId().toString() + ".drop_items", true)) {
+				if (!player.isOp() && plugin.getConfig().getBoolean("admins." + player.getUniqueId().toString() + ".op_only", false)) {
 					return;
 				}
 				event.getDrops().clear();

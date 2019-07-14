@@ -6,16 +6,16 @@ public class StringHelper {
 	}
 
 	public static String join(String[] arr, int offset, String delim) {
-		String str = "";
+		StringBuilder str = new StringBuilder();
 
 		if ((arr == null) || (arr.length == 0)) {
-			return str;
+			return str.toString();
 		}
 
 		for (int i = offset; i < arr.length; i++) {
-			str = str + arr[i] + delim;
+			str.append(arr[i]).append(delim);
 		}
 
-		return str.trim();
+		return str.toString().trim();
 	}
 }
