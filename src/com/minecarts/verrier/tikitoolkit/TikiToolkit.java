@@ -7,21 +7,15 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.Event.Type;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.Configuration;
 
-import java.util.HashMap;
 import java.util.logging.Logger;
 
 public class TikiToolkit extends JavaPlugin {
 
 	public final Logger log = Logger.getLogger("Minecraft");
-	public HashMap<String, Integer> playerSlot;
-	public Configuration config;
 	private PlayerListener playerListener;
 	private EntityListener entityListener;
 
@@ -32,13 +26,8 @@ public class TikiToolkit extends JavaPlugin {
 		playerListener = new PlayerListener(this);
 		entityListener = new EntityListener(this);
 
-		pm.registerEvent(Type.PLAYER_INTERACT, this.playerListener, Event.Priority.Monitor, this);
-		pm.registerEvent(Type.PLAYER_ITEM_HELD, this.playerListener, Event.Priority.Monitor, this);
-		pm.registerEvent(Type.PLAYER_RESPAWN, this.playerListener, Event.Priority.Monitor, this);
-
-		pm.registerEvent(Type.ENTITY_DEATH, this.entityListener, Event.Priority.High, this);
-
-		this.config = getConfiguration();
+		pm.registerEvents(this.playerListener, this);
+		pm.registerEvents(this.entityListener, this);
 
 		PluginDescriptionFile pdf = getDescription();
 		this.log.info("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
@@ -58,12 +47,12 @@ public class TikiToolkit extends JavaPlugin {
 					if (sender instanceof Player) {
 						//Check to see if they're an op
 						if (sender.isOp()) {
-							this.config.load();
+							this.reloadConfig();
 						}
 						sender.sendMessage("TikiToolkit config reloaded.");
 					} else {
 						//Console issued the command
-						this.config.load();
+						this.reloadConfig();
 					}
 					log.info("TikiToolkit config reloaded.");
 					return true;
@@ -79,7 +68,7 @@ public class TikiToolkit extends JavaPlugin {
 					if (sender instanceof Player) {
 						Player player = (Player) sender;
 
-						if (!player.isOp() && config.getBoolean("admins." + player.getName() + ".op_only", false)) {
+						if (!player.isOp() && getConfig().getBoolean("admins." + player.getName() + ".op_only", false)) {
 							return false;
 						}
 
@@ -91,7 +80,7 @@ public class TikiToolkit extends JavaPlugin {
 					if (args.length > 2) {
 						if (sender instanceof Player) {
 							Player player = (Player) sender;
-							config.setProperty("admins." + player.getName() + ".slot_" + player.getInventory().getHeldItemSlot() + ".type", player.getItemInHand().getType().toString());
+							getConfig().set("admins." + player.getName() + ".slot_" + player.getInventory().getHeldItemSlot() + ".type", player.getItemInHand().getType().toString());
 
 							if (args[1].equalsIgnoreCase("click_left") || args[1].equalsIgnoreCase("click_right")) {
 								//Check to see if there are multiple args after this, and if so, try to figure out how to break it apart
@@ -99,11 +88,11 @@ public class TikiToolkit extends JavaPlugin {
 
 								String combinedArgs = StringHelper.join(args, 2);
 
-								config.setProperty("admins." + player.getName() + ".slot_" + player.getInventory().getHeldItemSlot() + "." + args[1].toLowerCase(), combinedArgs);
+								getConfig().set("admins." + player.getName() + ".slot_" + player.getInventory().getHeldItemSlot() + "." + args[1].toLowerCase(), combinedArgs);
 							} else {
 								player.sendMessage("Please use click_left or click_right to define the click action.");
 							}
-							config.save();
+							this.saveConfig();
 							return true;
 						}
 					}
