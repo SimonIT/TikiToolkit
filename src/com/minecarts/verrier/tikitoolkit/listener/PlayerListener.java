@@ -18,7 +18,7 @@ import java.util.List;
 
 public class PlayerListener implements Listener {
 
-	private TikiToolkit plugin;
+	private final TikiToolkit plugin;
 
 	public PlayerListener(TikiToolkit instance) {
 		plugin = instance;
@@ -85,12 +85,12 @@ public class PlayerListener implements Listener {
 				//Try to load the commands as a list
 				List<String> cmds = plugin.getConfig().getStringList("admins." + player.getUniqueId().toString() + ".slot_" + slot + "." + clickType);
 				if (cmds.size() > 0) {
-					Iterator itr = cmds.iterator();
+					Iterator<String> itr = cmds.iterator();
 					while (itr.hasNext()) {
-						String cmd = (String) itr.next();//Try to parse it as an integer, if it is, treat it as a delay
+						String cmd = itr.next();//Try to parse it as an integer, if it is, treat it as a delay
 						try {
 							int delay = Integer.parseInt(cmd);
-							ExecuteCommandLater commandExec = new ExecuteCommandLater(player, (String) itr.next());
+							ExecuteCommandLater commandExec = new ExecuteCommandLater(player, itr.next());
 							plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, commandExec, delay);
 						} catch (Exception e) {
 							//Wasn't an int, so it's a string command
@@ -115,7 +115,7 @@ public class PlayerListener implements Listener {
 	}
 
 	public class setInventory implements Runnable {
-		private Player player;
+		private final Player player;
 
 		public setInventory(Player player) {
 			this.player = player;
@@ -134,9 +134,9 @@ public class PlayerListener implements Listener {
 		}
 	}
 
-	private class ExecuteCommandLater implements Runnable {
-		private String command;
-		private Player player;
+	private static class ExecuteCommandLater implements Runnable {
+		private final String command;
+		private final Player player;
 
 		public ExecuteCommandLater(Player player, String command) {
 			this.command = command;

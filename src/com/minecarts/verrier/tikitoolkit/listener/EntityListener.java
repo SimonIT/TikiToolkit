@@ -7,7 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 public class EntityListener implements Listener {
-	private TikiToolkit plugin;
+	private final TikiToolkit plugin;
 
 	public EntityListener(TikiToolkit instance) {
 		plugin = instance;

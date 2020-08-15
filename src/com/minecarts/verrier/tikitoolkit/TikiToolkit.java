@@ -60,7 +60,7 @@ public class TikiToolkit extends JavaPlugin {
 				} else if (args[0].equalsIgnoreCase("identify")) {
 					if (sender instanceof Player) {
 						Player player = (Player) sender;
-						player.sendMessage("Tiki: You are holding: " + ChatColor.GOLD + player.getInventory().getItemInHand().getType().name());
+						player.sendMessage("Tiki: You are holding: " + ChatColor.GOLD + player.getInventory().getItemInMainHand().getType().name());
 						return true;
 					}
 					//Give the player their tools
